@@ -1,11 +1,14 @@
 #include <PubSubClient.h>
 
+#define BLINK_PIN_MQTT PIN_LED_MODULE
+
 WiFiClient _wifi;
 PubSubClient mqtt(_wifi);
 
 void connect_mqtt();
 
 void start_mqtt() {
+  start_leds();
   mqtt.setServer(MQTT_SERVER, MQTT_PORT);
   connect_mqtt();
   mqtt.subscribe(MQTT_TOPIC_IN);
@@ -33,11 +36,11 @@ void connect_mqtt() {
     Serial.print("MQTT not connected. State: ");
     Serial.println(state, DEC);
     delay(1000);
-    digitalWrite(BLINK_PIN, blink);
+    digitalWrite(BLINK_PIN_MQTT, blink);
     blink = !blink;
   }
 
-  digitalWrite(BLINK_PIN, LOW);
+  digitalWrite(BLINK_PIN_MQTT, LOW);
   Serial.println("MQTT ready.");
 }
 
