@@ -5,16 +5,20 @@
 #define BLINK_PIN_WIFI PIN_LED_MODULE
 
 void start_wifi() {
+  if (WiFi.status() == WL_CONNECTED) {
+    return;
+  }
+
   start_leds();
-  static bool blink = LOW;
+  static bool blink_state = LOW;
 
   WiFi.mode(WIFI_STA);
-
   while (WiFi.status() != WL_CONNECTED) {
     for (char i = 0; i < WIFI_NETWORK_COUNT; i++) {
       const char *ssid = WIFI_SSIDS[i];
       const char *password = WIFI_PASSWORDS[i];
       WiFi.begin(ssid, password);
+
       Serial.print("Connecting to ");
       Serial.print(ssid);
       Serial.print("...");
@@ -23,8 +27,8 @@ void start_wifi() {
       while (WiFi.status() != WL_CONNECTED && millis() < try_next_at) {
         delay(200);
         Serial.print(".");
-        digitalWrite(BLINK_PIN_WIFI, blink);
-        blink = !blink;
+        digitalWrite(BLINK_PIN_WIFI, blink_state);
+        blink_state = !blink_state;
       }
       Serial.println();
     }
@@ -35,4 +39,8 @@ void start_wifi() {
   Serial.println();
   Serial.println("Wifi ready.");
   Serial.println(WiFi.localIP());
+}
+
+void maintain_wifi() {
+  start_wifi();
 }

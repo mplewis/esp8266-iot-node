@@ -18,6 +18,7 @@ void loop() {
   }
 
   handle_leds();
+  maintain_wifi();
   mqtt.loop();
 }
 
