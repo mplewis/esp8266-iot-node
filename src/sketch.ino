@@ -19,7 +19,7 @@ void loop() {
 
   handle_leds();
   maintain_wifi();
-  mqtt.loop();
+  maintain_mqtt();
 }
 
 void mqtt_in(char *topic, uint8_t *payload, unsigned int len) {
