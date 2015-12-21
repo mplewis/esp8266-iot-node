@@ -17,8 +17,6 @@ void args_in() {
   if (strcasecmp(cmd, "ident") == 0) {
     String reply = "";
     reply += "IDENT,";
-    reply += board_id();
-    reply += ",";
     reply += WiFi.localIP().toString();
     reply += ",";
     reply += BOARD_NAME;
