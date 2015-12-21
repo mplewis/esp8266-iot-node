@@ -9,16 +9,25 @@ void start_wifi() {
   static bool blink = LOW;
 
   WiFi.mode(WIFI_STA);
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  Serial.print("Connecting to ");
-  Serial.print(WIFI_SSID);
-  Serial.print("...");
 
   while (WiFi.status() != WL_CONNECTED) {
-    delay(200);
-    Serial.print(".");
-    digitalWrite(BLINK_PIN_WIFI, blink);
-    blink = !blink;
+    for (char i = 0; i < WIFI_NETWORK_COUNT; i++) {
+      const char *ssid = WIFI_SSIDS[i];
+      const char *password = WIFI_PASSWORDS[i];
+      WiFi.begin(ssid, password);
+      Serial.print("Connecting to ");
+      Serial.print(ssid);
+      Serial.print("...");
+
+      unsigned long try_next_at = millis() + WIFI_CONNECT_TIMEOUT;
+      while (WiFi.status() != WL_CONNECTED && millis() < try_next_at) {
+        delay(200);
+        Serial.print(".");
+        digitalWrite(BLINK_PIN_WIFI, blink);
+        blink = !blink;
+      }
+      Serial.println();
+    }
   }
 
   digitalWrite(BLINK_PIN_WIFI, LOW);
