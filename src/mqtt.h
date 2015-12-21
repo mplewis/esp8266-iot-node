@@ -23,7 +23,6 @@ void connect_mqtt() {
   Serial.print(MQTT_SERVER);
   Serial.println("...");
 
-
   while (!mqtt.connected()) {
     static bool blink = HIGH;
   
