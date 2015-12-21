@@ -5,8 +5,14 @@ long led_board_off_at = 0;
 long led_module_off_at = 0;
 
 void start_leds() {
+  static bool first_init = true;
   pinMode(PIN_LED_BOARD, OUTPUT);
   pinMode(PIN_LED_MODULE, OUTPUT);
+  if (first_init) {
+    digitalWrite(PIN_LED_BOARD, HIGH);
+    digitalWrite(PIN_LED_MODULE, HIGH);
+    first_init = false;
+  }
 }
 
 void blink(long duration) {
