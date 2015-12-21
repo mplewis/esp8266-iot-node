@@ -45,4 +45,5 @@ void connect_mqtt() {
 
 void publish(const char *payload) {
   mqtt.publish(MQTT_TOPIC_OUT, payload);
+  blink(100);
 }

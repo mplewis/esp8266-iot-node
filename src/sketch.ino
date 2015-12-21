@@ -14,7 +14,6 @@ void setup() {
 
 void loop() {
   if (millis() % 5000 == 0) {
-    blink(100);
     publish("Hello world!");
   }
 
