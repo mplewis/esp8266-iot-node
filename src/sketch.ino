@@ -1,5 +1,4 @@
 #include "wifi.h"
-#include "mqtt.h"
 #include "cmds.h"
 
 void setup() {
@@ -8,12 +7,9 @@ void setup() {
 
   start_leds();
   start_wifi();
-  start_mqtt();
-  start_cmds();
 }
 
 void loop() {
   handle_leds();
-  maintain_wifi();
-  maintain_mqtt();
+  handle_wifi();
 }

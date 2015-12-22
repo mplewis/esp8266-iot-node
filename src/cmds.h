@@ -1,57 +1,37 @@
-const char BUF_LEN = 64;
-const char ARG_COUNT = 16;
-char buf[BUF_LEN] = {0};
-char *args[ARG_COUNT] = {0};
+const char HEADER_COUNT = 64;
+char *headers[HEADER_COUNT] = {0};
+const char *body_sep = "\r\n\r\n";
+const char *header_sep = "\r\n";
 
-void _mqtt_in(char *topic, uint8_t *payload, unsigned int len);
-void args_in();
-void publish(const char *payload);  // mqtt.h
-unsigned long board_id();  // mqtt.h
+void parse_headers(char *buf);
 
-void start_cmds() {
-  mqtt.setCallback(_mqtt_in);
+void parse_request(char *buf) {
+  char *raw_headers = strtok(buf, body_sep);
+  char *body = strtok(0, body_sep);
+  Serial.println("Headers:");
+  Serial.println(raw_headers);
+  Serial.println("Body:");
+  Serial.println(body);
+  parse_headers(raw_headers);
 }
 
-void args_in() {
-  char *cmd = args[0];
-  if (strcasecmp(cmd, "ident") == 0) {
-    String reply = "";
-    reply += "IDENT,";
-    reply += WiFi.localIP().toString();
-    reply += ",";
-    reply += BOARD_NAME;
-    reply += ",";
-    reply += BOARD_DESC;
-    reply.toCharArray(buf, BUF_LEN);
-    publish(buf);
-  }
-}
-
-void _mqtt_in(char *topic, uint8_t *payload, unsigned int len) {
-  // copy bytes from payload to buf and terminate
-  for (char i = 0; i <= len; i++) {
-    if (i == BUF_LEN - 1 || i == len) {
-      buf[i] = 0;
-      break;
-    }
-    buf[i] = payload[i];
+void parse_headers(char *buf) {
+  // parse http headers, tokenize by \r\n
+  char *token = strtok(buf, header_sep);
+  int header_num = 0;
+  while (token != 0 && header_num < HEADER_COUNT) {
+    headers[header_num++] = token;
+    token = strtok(0, header_sep);
   }
 
-  // tokenize by commas
-  char *token = strtok(buf, ",");
-  int arg_num = 0;
-  while (token != 0 && arg_num < ARG_COUNT) {
-    args[arg_num++] = token;
-    token = strtok(0, ",");
+  // clear unused headers in the array
+  for (int i = header_num; i < HEADER_COUNT; i++) {
+    headers[i] = NULL;
   }
 
-  // clear unused args in the array
-  for (char i = arg_num; i < ARG_COUNT; i++) {
-    args[i] = NULL;
+  for (int i = 0; i < header_num; i++) {
+    Serial.print(i);
+    Serial.print(": ");
+    Serial.println(headers[i]);
   }
-
-  // handle parsed arguments
-  args_in();
-
-  blink(100);
 }
