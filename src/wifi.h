@@ -1,5 +1,6 @@
 #include <ESP8266WiFi.h>
 #include <WiFiUDP.h>
+#include <http_parser.h>
 #include "config.h"
 #include "leds.h"
 
@@ -83,32 +84,26 @@ void listen_for_cmds() {
   if (!client) return;
 
   blink(100);
-  
-  unsigned long start = millis();
-  unsigned long wait_until = start + WIFI_CLIENT_DATA_TIMEOUT;
-  while (!client.available() && millis() < wait_until) {
-    delay(10);
-  }
-  unsigned long duration = millis() - start;
-  
-  Serial.print(client.available());
-  Serial.print(" bytes after ");
-  Serial.print(duration);
-  Serial.println(" ms");
 
+  // Wait for the request body to come in
+  unsigned long wait_until = millis() + WIFI_CLIENT_DATA_TIMEOUT;
+  while (!client.available() && millis() < wait_until) {
+    delay(1);
+  }
+
+  // Read request into buffer
   int pos = 0;
   while (client.available()) {
     char b = client.read();
     buf[pos++] = b;
-    Serial.write(b);
     if (pos == BUF_SIZE - 1) break;
   }
   buf[pos] = 0;  // terminate string
 
+  // Write out the response
   client.write("HTTP/1.1 204 No Content\r\n\r\n");
   client.flush();
 
+  // Parse the request and print to serial
   parse_request(buf);
-
-  Serial.println("Done");
 }
