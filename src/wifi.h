@@ -1,6 +1,5 @@
 #include <ESP8266WiFi.h>
 #include <WiFiUDP.h>
-#include <http_parser.h>
 #include "config.h"
 #include "leds.h"
 
