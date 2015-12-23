@@ -8,6 +8,8 @@ char *body;
 void parse_headers(char *buf);
 void print_request(char *request_line, char *headers[],
                    int header_count, char *body);
+void debug_request(char *request_line, char *headers[],
+                   int header_count, char *body);
 
 void parse_request(char *buf) {
   char *headers_end = strstr(buf, "\r\n\r\n");
@@ -38,6 +40,15 @@ void parse_headers(char *buf) {
 
 void print_request(char *request_line, char *headers[],
                    int header_count, char *body) {
+
+  if (WIFI_DEBUG_REQUESTS)
+    debug_request(request_line, headers, header_count, body); 
+
+  scroll_once(body);
+}
+
+void debug_request(char *request_line, char *headers[],
+                   int header_count, char *body) {
   Serial.println("Request line:");
   Serial.println(request_line);
   Serial.println();
@@ -53,6 +64,4 @@ void print_request(char *request_line, char *headers[],
   Serial.println("Body:");
   Serial.println(body);
   Serial.println();
-
-  scroll_once(body);
 }
