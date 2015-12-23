@@ -92,6 +92,28 @@ void listen_for_cmds() {
     delay(1);
   }
 
+  // Sometimes clients send headers then send the body.
+  // Give the client a little time to get all its data out the wire
+  // Empirically, most clients get data out within 5 ms
+  // I've seen clients take up to 12 ms to finish sending data
+  // This is a lazy hack - we should be checking Content-Length instead
+  if (WIFI_DEBUG_HTTP_TIMING) {
+    int last_avail = client.available();
+    // Print how long it takes us to get additional bytes after first byte
+    for (char i = 0; i < 100; i++) {
+      if (client.available() > last_avail) {
+        int received = client.available() - last_avail;
+        last_avail = client.available();
+        Serial.print(i, DEC);
+        Serial.print(": ");
+        Serial.println(received);
+      }
+      delay(1);
+    }
+  } else {
+    delay(40);
+  }
+
   // Read request into buffer
   int pos = 0;
   while (client.available()) {
