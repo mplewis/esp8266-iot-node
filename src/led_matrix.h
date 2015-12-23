@@ -11,6 +11,7 @@ const char *text;
 int text_width;
 int text_pos;
 int next_scroll_at = 0;
+bool scroll_repeat = false;
 
 void start_led_matrix() {
   HT1632.begin(PIN_LED_MATRIX_CS, PIN_LED_MATRIX_WR, PIN_LED_MATRIX_DATA);
@@ -20,8 +21,12 @@ void start_led_matrix() {
 void handle_led_matrix() {
   if (next_scroll_at == 0 || millis() < next_scroll_at) return;
   if (text_pos > text_width + OUT_SIZE) {
-    next_scroll_at = 0;
-    return;
+    if (scroll_repeat) {
+      text_pos = 0;
+    } else {
+      next_scroll_at = 0;
+      return;
+    }
   }
 
   next_scroll_at = millis() + TEXT_SCROLL_DELAY;
@@ -42,9 +47,18 @@ void show_heart() {
   HT1632.render();  // This updates the display on the screen.
 }
 
-void scroll_text(const char *t) {
+void _set_scroll_text(const char *t, bool repeat) {
   text = t;
   text_width = HT1632.getTextWidth(t, FONT_TINYFONT_END, FONT_TINYFONT_HEIGHT);
   text_pos = 0;
   next_scroll_at = millis();
+  scroll_repeat = repeat;
+}
+
+void scroll_once(const char *t) {
+  _set_scroll_text(t, false);
+}
+
+void scroll_forever(const char *t) {
+  _set_scroll_text(t, true);
 }

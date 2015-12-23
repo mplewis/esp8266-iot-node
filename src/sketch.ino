@@ -9,7 +9,7 @@ void setup() {
   start_leds();
   start_led_matrix();
   start_wifi();
-  scroll_text("Hello world!");
+  scroll_forever("Hello world!");
 }
 
 void loop() {
