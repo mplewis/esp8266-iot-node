@@ -24,10 +24,8 @@ void HT1632Class::drawText(const char text [], int x, int y, const byte font [],
 			return;
 		
 		currchar = text[i] - 32;
-		if(currchar >= 65 && currchar <= 90) // If character is lower-case, automatically make it upper-case
-			currchar -= 32; // Make this character uppercase.
 
-		if(currchar < 0 || currchar >= 64) { // If out of bounds, skip
+		if(currchar < 0 || currchar > 94) { // If out of bounds, skip
 			++i;
 			continue; // Skip this character.
 		}

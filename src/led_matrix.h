@@ -1,5 +1,5 @@
 #include <HT1632.h>
-#include <font_8x4.h>
+#include <font_tinyfont.h>
 #include <images.h>
 
 const char PIN_LED_MATRIX_DATA = D0;
@@ -7,7 +7,7 @@ const char PIN_LED_MATRIX_WR = D1;
 const char PIN_LED_MATRIX_RD = D2;
 const char PIN_LED_MATRIX_CS = D3;
 
-char *text;
+const char *text;
 int text_width;
 int text_pos;
 int next_scroll_at = 0;
@@ -27,7 +27,7 @@ void handle_led_matrix() {
   next_scroll_at = millis() + TEXT_SCROLL_DELAY;
   int x = OUT_SIZE - text_pos;
   int y = 0;
-  HT1632.drawText(text, x, y, FONT_8X4, FONT_8X4_END, FONT_8X4_HEIGHT);
+  HT1632.drawText(text, x, y, FONT_TINYFONT, FONT_TINYFONT_END, FONT_TINYFONT_HEIGHT, 0);
   HT1632.render();
   text_pos++;
 }
@@ -42,9 +42,9 @@ void show_heart() {
   HT1632.render();  // This updates the display on the screen.
 }
 
-void scroll_text(char *t) {
+void scroll_text(const char *t) {
   text = t;
-  text_width = HT1632.getTextWidth(t, FONT_8X4_END, FONT_8X4_HEIGHT);
+  text_width = HT1632.getTextWidth(t, FONT_TINYFONT_END, FONT_TINYFONT_HEIGHT);
   text_pos = 0;
   next_scroll_at = millis();
 }
