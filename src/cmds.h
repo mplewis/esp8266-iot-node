@@ -53,4 +53,6 @@ void print_request(char *request_line, char *headers[],
   Serial.println("Body:");
   Serial.println(body);
   Serial.println();
+
+  scroll_once(body);
 }
