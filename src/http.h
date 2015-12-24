@@ -1,3 +1,6 @@
+#ifndef __http_h
+#define __http_h
+
 #include <math.h>
 
 const int REQUEST_LINE_SIZE = 256;
@@ -40,3 +43,5 @@ void debug_request(char *request_line, char *body) {
   Serial.println(body);
   Serial.println();
 }
+
+#endif

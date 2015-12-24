@@ -1,3 +1,6 @@
+#ifndef __wifi_h
+#define __wifi_h
+
 #include <ESP8266WiFi.h>
 #include <WiFiUDP.h>
 #include "config.h"
@@ -130,3 +133,5 @@ void listen_for_cmds() {
   // Parse the request and print to serial
   parse_request(buf);
 }
+
+#endif

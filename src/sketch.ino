@@ -1,10 +1,10 @@
+#include "leds.h"
 #include "wifi.h"
-#include "cmds.h"
 #include "led_matrix.h"
 
 void setup() {
   Serial.begin(115200);
-  Serial.println();
+  Serial.println();  // Clear the garbage from ESP8266's ROM
 
   start_leds();
   start_led_matrix();
