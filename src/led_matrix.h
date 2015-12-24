@@ -58,7 +58,7 @@ void _finalize_scroll_text(bool repeat) {
 }
 
 void _set_scroll_text(const char *t, bool repeat) {
-  strncpy(text, t, TEXT_MAX_CHARS);
+  strlcpy(text, t, TEXT_MAX_CHARS);
   _finalize_scroll_text(repeat);
 }
 
