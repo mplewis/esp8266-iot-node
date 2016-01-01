@@ -2,7 +2,6 @@
 #define __http_h
 
 #include <math.h>
-#include "led_matrix.h"
 
 // public functions for users
 typedef enum ResponseCode {

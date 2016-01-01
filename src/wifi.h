@@ -6,7 +6,6 @@
 #include "config.h"
 #include "leds.h"
 #include "http.h"
-#include "led_matrix.h"
 
 #define BLINK_PIN_WIFI PIN_LED_MODULE
 const long UDP_BROADCAST_IP = 0xFFFFFFFF;  // 255.255.255.255
@@ -58,7 +57,6 @@ void start_wifi() {
   Serial.println();
   Serial.println("Wifi ready.");
   Serial.println(WiFi.localIP());
-  scroll_once(WiFi.localIP().toString());
 }
 
 void handle_wifi() {
