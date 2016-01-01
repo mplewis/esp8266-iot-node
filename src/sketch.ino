@@ -10,7 +10,7 @@ void setup() {
   start_leds();
   start_led_matrix();
   start_wifi();
-  set_request_cb(router);
+  http_set_request_cb(router);
 }
 
 void loop() {
@@ -22,20 +22,20 @@ void loop() {
 void router(WiFiClient client, const char *method, const char *path, const char *body) {
   if (strcmp(path, "/") == 0) {
     if (strcmp(method, "GET") == 0) {
-      respond(client, RC_200, "OK");
+      http_respond(client, RC_200, "OK");
     } else {
-      respond(client, RC_405);
+      http_respond(client, RC_405);
     }
 
   } else if (strcmp(path, "/matrix") == 0) {
     if (strcmp(method, "POST") == 0) {
-      respond(client, RC_204);
+      http_respond(client, RC_204);
       scroll_once(body);
     } else {
-      respond(client, RC_405);
+      http_respond(client, RC_405);
     }
 
   } else {
-    respond(client, RC_404);
+    http_respond(client, RC_404);
   }
 }

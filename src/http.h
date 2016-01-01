@@ -4,10 +4,7 @@
 #include <math.h>
 #include "led_matrix.h"
 
-const int REQUEST_LINE_SIZE = 256;
-const int METHOD_SIZE = 16;
-const int BODY_SIZE = 1024;
-
+// public functions for users
 typedef enum ResponseCode {
   RC_200,
   RC_204,
@@ -15,6 +12,17 @@ typedef enum ResponseCode {
   RC_405,
   RC_500
 } ResponseCode;
+
+void http_respond(WiFiClient client, ResponseCode code);
+void http_respond(WiFiClient client, ResponseCode code, const char *body);
+void http_set_request_cb(void (*user_cb)(WiFiClient, const char *, const char *, const char *));
+
+// public functions for library
+void http_parse_request(WiFiClient client, char *buf);
+
+// private stuff
+void _handle_request(WiFiClient client, const char *method, const char *path, const char *body);
+void _debug_request(const char *method, const char *path, const char *body);
 
 #define HTTP_1_1 "HTTP/1.1 "
 #define RC_TEXT_200 "200 OK"
@@ -24,53 +32,52 @@ typedef enum ResponseCode {
 #define RC_TEXT_500 "500 Internal Server Error"
 #define END_HEAD "\r\n\r\n"
 
+const int HTTP_REQUEST_LINE_SIZE = 256;
+const int HTTP_METHOD_SIZE = 16;
+const int HTTP_BODY_SIZE = 1024;
+
 void (*request_cb)(WiFiClient, const char *, const char *, const char *);
 
-void handle_request(WiFiClient client, const char *method, const char *path, const char *body);
-void respond(WiFiClient client, ResponseCode code);
-void respond(WiFiClient client, ResponseCode code, const char *body);
-void debug_request(const char *method, const char *path, const char *body);
-
-void parse_request(WiFiClient client, char *buf) {
-  char method[METHOD_SIZE];
-  char path[REQUEST_LINE_SIZE];
-  char body[BODY_SIZE];
+void http_parse_request(WiFiClient client, char *buf) {
+  char method[HTTP_METHOD_SIZE];
+  char path[HTTP_REQUEST_LINE_SIZE];
+  char body[HTTP_BODY_SIZE];
 
   char *method_divider = strstr(buf, " ");
   // Add 1 byte for the terminator
   int method_len = method_divider - buf + 1;
-  strlcpy(method, buf, fmin(method_len, METHOD_SIZE));
+  strlcpy(method, buf, fmin(method_len, HTTP_METHOD_SIZE));
 
   char *path_start = method_divider + 1;
   char *path_divider = strstr(path_start, " ");
   int path_len = path_divider - path_start + 1;
-  strlcpy(path, path_start, fmin(path_len, REQUEST_LINE_SIZE));
+  strlcpy(path, path_start, fmin(path_len, HTTP_REQUEST_LINE_SIZE));
 
   // Body starts right after the headers end with a blank line
   char *body_start = strstr(buf, "\r\n\r\n") + 4;
-  strlcpy(body, body_start, BODY_SIZE);
+  strlcpy(body, body_start, HTTP_BODY_SIZE);
 
-  handle_request(client, method, path, body);
+  _handle_request(client, method, path, body);
 }
 
-void set_request_cb(void (*user_cb)(WiFiClient, const char *, const char *, const char *)) {
+void http_set_request_cb(void (*user_cb)(WiFiClient, const char *, const char *, const char *)) {
   request_cb = user_cb;
 }
 
-void handle_request(WiFiClient client, const char *method, const char *path, const char *body) {
+void _handle_request(WiFiClient client, const char *method, const char *path, const char *body) {
   if (WIFI_DEBUG_REQUESTS) {
-    debug_request(method, path, body); 
+    _debug_request(method, path, body); 
   }
   if (request_cb != NULL) {
     request_cb(client, method, path, body);
   }
 }
 
-void respond(WiFiClient client, ResponseCode code) {
-  respond(client, code, NULL);
+void http_respond(WiFiClient client, ResponseCode code) {
+  http_respond(client, code, NULL);
 }
 
-void respond(WiFiClient client, ResponseCode code, const char *body) {
+void http_respond(WiFiClient client, ResponseCode code, const char *body) {
   const char *head;
   if (code == RC_200) {
     head = HTTP_1_1 RC_TEXT_200 END_HEAD;
@@ -95,7 +102,7 @@ void respond(WiFiClient client, ResponseCode code, const char *body) {
   client.flush();
 }
 
-void debug_request(const char *method, const char *path, const char *body) {
+void _debug_request(const char *method, const char *path, const char *body) {
   Serial.println("Method:");
   Serial.println(method);
   Serial.println();

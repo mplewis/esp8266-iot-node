@@ -127,7 +127,7 @@ void listen_for_cmds() {
   buf[pos] = 0;  // terminate string
 
   // Parse the request and pass along the client for responding
-  parse_request(client, buf);
+  http_parse_request(client, buf);
 }
 
 #endif

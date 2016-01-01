@@ -4,6 +4,7 @@
 #include <HT1632.h>
 #include <font_tinyfont.h>
 #include <images.h>
+#include "config.h"
 
 const char PIN_LED_MATRIX_DATA = D0;
 const char PIN_LED_MATRIX_WR = D1;
