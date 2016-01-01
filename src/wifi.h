@@ -72,12 +72,7 @@ void advertise() {
   advertise_at = millis() + WIFI_ADVERTISING_INTERVAL;
   blink(100);
   udp.beginPacket(UDP_BROADCAST_IP, WIFI_ADVERTISING_PORT);
-  String reply = "";
-  reply += BOARD_NAME;
-  reply += ",";
-  reply += BOARD_DESC;
-  reply.toCharArray(buf, BUF_SIZE);
-  udp.write(buf);
+  udp.write(BOARD_TYPE ":" BOARD_ID ":" BOARD_DESC);
   udp.endPacket();
 }
 
