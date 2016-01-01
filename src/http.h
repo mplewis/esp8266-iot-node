@@ -24,10 +24,12 @@ typedef enum ResponseCode {
 #define RC_TEXT_500 "500 Internal Server Error"
 #define END_HEAD "\r\n\r\n"
 
-void handle_request(WiFiClient client, char *method, char *path, char *body);
+void (*request_cb)(WiFiClient, const char *, const char *, const char *);
+
+void handle_request(WiFiClient client, const char *method, const char *path, const char *body);
 void respond(WiFiClient client, ResponseCode code);
 void respond(WiFiClient client, ResponseCode code, const char *body);
-void debug_request(char *method, char *path, char *body);
+void debug_request(const char *method, const char *path, const char *body);
 
 void parse_request(WiFiClient client, char *buf) {
   char method[METHOD_SIZE];
@@ -51,29 +53,16 @@ void parse_request(WiFiClient client, char *buf) {
   handle_request(client, method, path, body);
 }
 
-void handle_request(WiFiClient client, char *method, char *path, char *body) {
+void set_request_cb(void (*user_cb)(WiFiClient, const char *, const char *, const char *)) {
+  request_cb = user_cb;
+}
+
+void handle_request(WiFiClient client, const char *method, const char *path, const char *body) {
   if (WIFI_DEBUG_REQUESTS) {
     debug_request(method, path, body); 
   }
-
-  if (strcmp(path, "/") == 0) {
-    if (strcmp(method, "GET") == 0) {
-      respond(client, RC_200, "OK");
-    } else {
-      respond(client, RC_405);
-    }
-
-  } else if (strcmp(path, "/matrix") == 0) {
-    if (strcmp(method, "POST") == 0) {
-      respond(client, RC_204);
-      scroll_once(body);
-    } else {
-      respond(client, RC_405);
-    }
-
-  } else {
-    respond(client, RC_404);
-
+  if (request_cb != NULL) {
+    request_cb(client, method, path, body);
   }
 }
 
@@ -106,7 +95,7 @@ void respond(WiFiClient client, ResponseCode code, const char *body) {
   client.flush();
 }
 
-void debug_request(char *method, char *path, char *body) {
+void debug_request(const char *method, const char *path, const char *body) {
   Serial.println("Method:");
   Serial.println(method);
   Serial.println();
