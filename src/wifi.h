@@ -75,8 +75,6 @@ void advertise() {
   blink(100);
   udp.beginPacket(UDP_BROADCAST_IP, WIFI_ADVERTISING_PORT);
   String reply = "";
-  reply += WiFi.localIP().toString();
-  reply += ",";
   reply += BOARD_NAME;
   reply += ",";
   reply += BOARD_DESC;
