@@ -2,41 +2,116 @@
 #define __http_h
 
 #include <math.h>
+#include "led_matrix.h"
 
 const int REQUEST_LINE_SIZE = 256;
+const int METHOD_SIZE = 16;
 const int BODY_SIZE = 1024;
 
-void parse_headers(char *buf);
-void handle_request(char *request_line, char *body);
-void debug_request(char *request_line, char *body);
+typedef enum ResponseCode {
+  RC_200,
+  RC_204,
+  RC_404,
+  RC_405,
+  RC_500
+} ResponseCode;
 
-void parse_request(char *buf) {
-  char request_line[REQUEST_LINE_SIZE];
+#define HTTP_1_1 "HTTP/1.1 "
+#define RC_TEXT_200 "200 OK"
+#define RC_TEXT_204 "204 No Content"
+#define RC_TEXT_404 "404 Not Found"
+#define RC_TEXT_405 "405 Method Not Allowed"
+#define RC_TEXT_500 "500 Internal Server Error"
+#define END_HEAD "\r\n\r\n"
+
+void handle_request(WiFiClient client, char *method, char *path, char *body);
+void respond(WiFiClient client, ResponseCode code);
+void respond(WiFiClient client, ResponseCode code, const char *body);
+void debug_request(char *method, char *path, char *body);
+
+void parse_request(WiFiClient client, char *buf) {
+  char method[METHOD_SIZE];
+  char path[REQUEST_LINE_SIZE];
   char body[BODY_SIZE];
 
-  // Headers start right after the request line
-  char *request_line_end = strstr(buf, "\r\n");
+  char *method_divider = strstr(buf, " ");
   // Add 1 byte for the terminator
-  int request_line_len = request_line_end - buf + 1;
-  strlcpy(request_line, buf, fmin(request_line_len, REQUEST_LINE_SIZE));
+  int method_len = method_divider - buf + 1;
+  strlcpy(method, buf, fmin(method_len, METHOD_SIZE));
+
+  char *path_start = method_divider + 1;
+  char *path_divider = strstr(path_start, " ");
+  int path_len = path_divider - path_start + 1;
+  strlcpy(path, path_start, fmin(path_len, REQUEST_LINE_SIZE));
 
   // Body starts right after the headers end with a blank line
   char *body_start = strstr(buf, "\r\n\r\n") + 4;
   strlcpy(body, body_start, BODY_SIZE);
 
-  handle_request(request_line, body);
+  handle_request(client, method, path, body);
 }
 
-void handle_request(char *request_line, char *body) {
+void handle_request(WiFiClient client, char *method, char *path, char *body) {
   if (WIFI_DEBUG_REQUESTS) {
-    debug_request(request_line, body); 
+    debug_request(method, path, body); 
   }
-  scroll_once(body);
+
+  if (strcmp(path, "/") == 0) {
+    if (strcmp(method, "GET") == 0) {
+      respond(client, RC_200, "OK");
+    } else {
+      respond(client, RC_405);
+    }
+
+  } else if (strcmp(path, "/matrix") == 0) {
+    if (strcmp(method, "POST") == 0) {
+      respond(client, RC_204);
+      scroll_once(body);
+    } else {
+      respond(client, RC_405);
+    }
+
+  } else {
+    respond(client, RC_404);
+
+  }
 }
 
-void debug_request(char *request_line, char *body) {
-  Serial.println("Request line:");
-  Serial.println(request_line);
+void respond(WiFiClient client, ResponseCode code) {
+  respond(client, code, NULL);
+}
+
+void respond(WiFiClient client, ResponseCode code, const char *body) {
+  const char *head;
+  if (code == RC_200) {
+    head = HTTP_1_1 RC_TEXT_200 END_HEAD;
+  } else if (code == RC_204) {
+    head = HTTP_1_1 RC_TEXT_204 END_HEAD;
+  } else if (code == RC_404) {
+    head = HTTP_1_1 RC_TEXT_404 END_HEAD;
+  } else if (code == RC_405) {
+    head = HTTP_1_1 RC_TEXT_405 END_HEAD;
+  } else if (code == RC_500) {
+    head = HTTP_1_1 RC_TEXT_500 END_HEAD;
+  }
+  if (WIFI_DEBUG_REQUESTS) {
+    Serial.print("Sending response: ");
+    Serial.println(head);
+  }
+  client.write(head);
+
+  if (body != NULL) {
+    client.write(body);
+  }
+  client.flush();
+}
+
+void debug_request(char *method, char *path, char *body) {
+  Serial.println("Method:");
+  Serial.println(method);
+  Serial.println();
+  Serial.println("Path:");
+  Serial.println(path);
   Serial.println();
 
   Serial.println("Body:");

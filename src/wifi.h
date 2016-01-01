@@ -5,13 +5,13 @@
 #include <WiFiUDP.h>
 #include "config.h"
 #include "leds.h"
+#include "http.h"
 #include "led_matrix.h"
 
 #define BLINK_PIN_WIFI PIN_LED_MODULE
 const long UDP_BROADCAST_IP = 0xFFFFFFFF;  // 255.255.255.255
 const int BUF_SIZE = 1024;
 
-void parse_request(char *buf);  // cmds.h
 void advertise();
 void listen_for_cmds();
 
@@ -47,6 +47,8 @@ void start_wifi() {
         blink_state = !blink_state;
       }
       Serial.println();
+
+      if (WiFi.status() == WL_CONNECTED) break;
     }
   }
 
@@ -126,12 +128,8 @@ void listen_for_cmds() {
   }
   buf[pos] = 0;  // terminate string
 
-  // Write out the response
-  client.write("HTTP/1.1 204 No Content\r\n\r\n");
-  client.flush();
-
-  // Parse the request and print to serial
-  parse_request(buf);
+  // Parse the request and pass along the client for responding
+  parse_request(client, buf);
 }
 
 #endif
