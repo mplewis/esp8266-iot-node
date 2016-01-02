@@ -70,7 +70,6 @@ void advertise() {
     return;
   }
   advertise_at = millis() + WIFI_ADVERTISING_INTERVAL;
-  blink(100);
   udp.beginPacket(UDP_BROADCAST_IP, WIFI_ADVERTISING_PORT);
   udp.write(BOARD_TYPE ":" BOARD_ID ":" BOARD_DESC);
   udp.endPacket();
@@ -79,8 +78,6 @@ void advertise() {
 void listen_for_cmds() {
   WiFiClient client = rest.available();
   if (!client) return;
-
-  blink(100);
 
   // Wait for the request body to come in
   unsigned long wait_until = millis() + WIFI_CLIENT_DATA_TIMEOUT;
