@@ -3,9 +3,8 @@
 
 #include <ESP8266WiFi.h>
 #include <WiFiUDP.h>
-#include "config.h"
-#include "leds.h"
-#include "http.h"
+#include "espretty_leds.h"
+#include "espretty_http.h"
 
 #define BLINK_PIN_WIFI PIN_LED_MODULE
 const long UDP_BROADCAST_IP = 0xFFFFFFFF;  // 255.255.255.255

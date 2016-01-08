@@ -1,6 +1,8 @@
-#include "leds.h"
-#include "wifi.h"
-#include "http.h"
+#include "config.h"
+
+#include <espretty_leds.h>
+#include <espretty_wifi.h>
+#include <espretty_http.h>
 
 void setup() {
   Serial.begin(115200);
