@@ -1,5 +1,5 @@
-#ifndef __http_h
-#define __http_h
+#ifndef __espretty_http_h
+#define __espretty_http_h
 
 #include <math.h>
 

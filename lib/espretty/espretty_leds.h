@@ -1,5 +1,5 @@
-#ifndef __leds_h
-#define __leds_h
+#ifndef __espretty_leds_h
+#define __espretty_leds_h
 
 #define PIN_LED_MODULE D4  // The active low LED on the ESP8266 module, by the metal can
 #define PIN_LED_BOARD D0  // The active low LED on the NodeMCU board, by the reset button

@@ -1,5 +1,5 @@
-#ifndef __wifi_h
-#define __wifi_h
+#ifndef __espretty_wifi_h
+#define __espretty_wifi_h
 
 #include <ESP8266WiFi.h>
 #include <WiFiUDP.h>
